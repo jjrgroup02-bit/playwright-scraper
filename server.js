@@ -12,7 +12,9 @@ app.get("/consultar-osiptel", async (req, res) => {
   const numero = req.query.numero;
 
   if (!numero) {
-    return res.json({ error: "Debes enviar ?numero=" });
+    return res.json({
+      error: "Debes enviar ?numero="
+    });
   }
 
   try {
@@ -29,7 +31,11 @@ app.get("/consultar-osiptel", async (req, res) => {
     const page = await browser.newPage();
 
     await page.goto("https://consulta.portabilidad.pe/", {
-      waitUntil: "domcontentloaded",
+      waitUntil: "networkidle",
+      timeout: 60000
+    });
+
+    await page.waitForSelector("input[type='tel']", {
       timeout: 60000
     });
 
