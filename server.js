@@ -37,13 +37,15 @@ app.get("/consultar-osiptel", async (req, res) => {
 
     await page.waitForTimeout(5000);
 
-    await page.waitForSelector("#txtNumero", {
+    const frame = page.frameLocator("iframe");
+
+    await frame.locator("input").first().waitFor({
        timeout: 60000
     });
 
-    await page.fill("#txtNumero", numero);
+    await frame.locator("input").first().fill(numero);
 
-    await page.click("button[type='submit']");
+    await frame.locator("button").first().click();
 
     await page.waitForTimeout(5000);
 
