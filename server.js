@@ -12,14 +12,14 @@ app.get("/consultar-osiptel", async (req, res) => {
   const numero = req.query.numero;
 
   if (!numero) {
-    return res.json({
-      error: "Debes enviar ?numero="
-    });
+    return res.json({ error: "Debes enviar ?numero=" });
   }
+
+  let browser;
 
   try {
 
-    const browser = await chromium.launch({
+    browser = await chromium.launch({
       headless: true,
       args: [
         "--no-sandbox",
@@ -31,9 +31,11 @@ app.get("/consultar-osiptel", async (req, res) => {
     const page = await browser.newPage();
 
     await page.goto("https://consulta.portabilidad.pe/", {
-      waitUntil: "networkidle",
+      waitUntil: "domcontentloaded",
       timeout: 60000
     });
+
+    await page.waitForTimeout(5000);
 
     await page.waitForSelector("input[type='tel']", {
       timeout: 60000
@@ -53,6 +55,10 @@ app.get("/consultar-osiptel", async (req, res) => {
 
   } catch (error) {
 
+    if (browser) {
+      await browser.close();
+    }
+
     res.json({
       error: "Error consultando OSIPTEL",
       detalle: error.toString()
@@ -65,5 +71,5 @@ app.get("/consultar-osiptel", async (req, res) => {
 const PORT = 3000;
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
+  console.log("Playwright scraper corriendo en puerto 3000");
 });
