@@ -1,69 +1,34 @@
 const express = require("express");
-const { chromium } = require("playwright");
 
 const app = express();
 
+// Ruta principal
 app.get("/", (req, res) => {
   res.send("Playwright scraper funcionando");
 });
 
-app.get("/consultar-osiptel", async (req, res) => {
+// Ruta de prueba para consulta
+app.get("/consultar-osiptel", (req, res) => {
 
   const numero = req.query.numero;
 
   if (!numero) {
-    return res.json({ error: "Debes enviar ?numero=" });
+    return res.json({
+      error: "Debes enviar ?numero="
+    });
   }
 
   res.json({
+    estado: "servidor funcionando",
     numero: numero,
-    estado: "endpoint funcionando",
-    mensaje: "Playwright se probará después"
+    mensaje: "endpoint funcionando correctamente"
   });
 
 });
 
-  const numero = req.query.numero;
+// Puerto del servidor
+const PORT = 3000;
 
-  if (!numero) {
-    return res.json({ error: "Debes enviar ?numero=" });
-  }
-
-  const browser = await chromium.launch({
-  headless: true,
-  args: ["--no-sandbox", "--disable-setuid-sandbox"]
-});
-  const page = await browser.newPage();
-
-  try {
-
-    await page.goto("https://consulta.portabilidad.pe/", { waitUntil: "domcontentloaded" });
-
-    await page.fill("input[type='tel']", numero);
-
-    await page.click("button[type=submit]");
-
-    await page.waitForTimeout(5000);
-
-    const html = await page.content();
-
-    await browser.close();
-
-    res.send(html);
-
-  } catch (error) {
-
-    await browser.close();
-
-    res.json({
-      error: "Error consultando OSIPTEL",
-      detalle: error.toString()
-    });
-
-  }
-
-});
-
-app.listen(3000, () => {
-  console.log("Playwright scraper corriendo");
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en puerto ${PORT}`);
 });
