@@ -15,14 +15,17 @@ app.get("/consultar-osiptel", async (req, res) => {
     return res.json({ error: "Debes enviar ?numero=" });
   }
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+  headless: true,
+  args: ["--no-sandbox", "--disable-setuid-sandbox"]
+});
   const page = await browser.newPage();
 
   try {
 
     await page.goto("https://consulta.portabilidad.pe/", { waitUntil: "domcontentloaded" });
 
-    await page.fill("#hf-number", numero);
+    await page.fill("input[type='tel']", numero);
 
     await page.click("button[type=submit]");
 
