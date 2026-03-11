@@ -12,7 +12,7 @@ app.get("/consultar-osiptel", async (req, res) => {
   const numero = req.query.numero;
 
   if (!numero) {
-    return res.json({ error: "Falta el número" });
+    return res.json({ error: "Debes enviar ?numero=" });
   }
 
   const browser = await chromium.launch({ headless: true });
@@ -20,7 +20,7 @@ app.get("/consultar-osiptel", async (req, res) => {
 
   try {
 
-    await page.goto("https://consulta.portabilidad.pe/");
+    await page.goto("https://consulta.portabilidad.pe/", { waitUntil: "domcontentloaded" });
 
     await page.fill("#hf-number", numero);
 
@@ -28,28 +28,11 @@ app.get("/consultar-osiptel", async (req, res) => {
 
     await page.waitForTimeout(5000);
 
-    const resultado = await page.evaluate(() => {
-
-      const datos = {};
-      const filas = document.querySelectorAll("table tr");
-
-      filas.forEach(fila => {
-        const columnas = fila.querySelectorAll("td");
-
-        if (columnas.length === 2) {
-          datos[columnas[0].innerText.trim()] = columnas[1].innerText.trim();
-        }
-      });
-
-      return datos;
-    });
+    const html = await page.content();
 
     await browser.close();
 
-    res.json({
-      numero,
-      resultado
-    });
+    res.send(html);
 
   } catch (error) {
 
@@ -65,5 +48,5 @@ app.get("/consultar-osiptel", async (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log("Servidor Playwright corriendo en puerto 3000");
+  console.log("Playwright scraper corriendo");
 });
