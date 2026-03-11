@@ -15,6 +15,20 @@ app.get("/consultar-osiptel", async (req, res) => {
     return res.json({ error: "Debes enviar ?numero=" });
   }
 
+  res.json({
+    numero: numero,
+    estado: "endpoint funcionando",
+    mensaje: "Playwright se probará después"
+  });
+
+});
+
+  const numero = req.query.numero;
+
+  if (!numero) {
+    return res.json({ error: "Debes enviar ?numero=" });
+  }
+
   const browser = await chromium.launch({
   headless: true,
   args: ["--no-sandbox", "--disable-setuid-sandbox"]
