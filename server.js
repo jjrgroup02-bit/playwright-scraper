@@ -24,30 +24,36 @@ app.get("/consultar-osiptel", async (req, res) => {
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage"
+        "--disable-dev-shm-usage",
+        "--disable-blink-features=AutomationControlled"
       ]
     });
 
     const page = await browser.newPage();
+
+    // Simular navegador real
+    await page.setExtraHTTPHeaders({
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
+    });
 
     await page.goto("https://consulta.portabilidad.pe/", {
       waitUntil: "domcontentloaded",
       timeout: 60000
     });
 
-    await page.waitForTimeout(5000);
+    // esperar que cargue javascript
+    await page.waitForTimeout(8000);
 
-    const frame = page.frameLocator("iframe");
+    // buscar input del número
+    await page.waitForSelector("input", { timeout: 60000 });
 
-    await frame.locator("input").first().waitFor({
-       timeout: 60000
-    });
+    await page.fill("input", numero);
 
-    await frame.locator("input").first().fill(numero);
+    await page.click("button");
 
-    await frame.locator("button").first().click();
-
-    await page.waitForTimeout(5000);
+    // esperar resultado
+    await page.waitForTimeout(6000);
 
     const html = await page.content();
 
